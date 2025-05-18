@@ -16,6 +16,9 @@ let ballSpeedY = 5;
 let leftScore = 0;
 let rightScore = 0;
 
+// Keep track of which keys are currently pressed for smoother movement
+const keysPressed = {};
+
 function drawPaddle(x, y, width, height) {
     ctx.fillStyle = 'black';
     ctx.fillRect(x, y, width, height);
@@ -42,11 +45,21 @@ function resetBall() {
     ballSpeedX = -ballSpeedX; // Reverse direction
 }
 
+function updateLeftPaddle() {
+    if (keysPressed['w'] && leftPaddleY > 0) {
+        leftPaddleY -= paddleSpeed;
+    }
+    if (keysPressed['s'] && leftPaddleY + paddleHeight < canvas.height) {
+        leftPaddleY += paddleSpeed;
+    }
+}
+
 function gameLoop() {
     // Clear the canvas
     ctx.fillStyle = '#ddd';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    updateLeftPaddle(); // Update left paddle position based on held keys
     drawPaddle(0, leftPaddleY, paddleWidth, paddleHeight);
     drawPaddle(canvas.width - paddleWidth, rightPaddleY, paddleWidth, paddleHeight);
     drawBall();
@@ -88,13 +101,13 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// Event listeners for player 1 (left paddle) control
+// Event listeners to track which keys are pressed
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'w' && leftPaddleY > 0) {
-        leftPaddleY -= paddleSpeed;
-    } else if (e.key === 's' && leftPaddleY + paddleHeight < canvas.height) {
-        leftPaddleY += paddleSpeed;
-    }
+    keysPressed[e.key] = true;
+});
+
+document.addEventListener('keyup', (e) => {
+    delete keysPressed[e.key];
 });
 
 // Start the game loop
